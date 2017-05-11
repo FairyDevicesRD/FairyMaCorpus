@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+'''
+Stub
+'''
+
+import bisect
+import argparse
+import codecs
+import sys
+import json
+
+
+def decorate(text, seps, separator):
+    '''
+    Decorate a text
+    '''
+    outtext = text
+    for cidx in sorted(list(seps), reverse=True):
+        outtext = outtext[:cidx] + separator + outtext[cidx:]
+    return outtext
+
+
+# def getContexts(sysseps, syspos
+
+
+def get_matches(text, wrongs, positions, poss):
+    '''
+    get match info
+    '''
+    ret_surfs = []
+    ret_poss = []
+    for wrong in wrongs:
+        start = bisect.bisect(positions, wrong) - 1
+        ret_surfs.append(text[positions[start]: positions[start + 1]])
+        ret_poss.append(poss[start])
+    return ret_surfs, ret_poss
+
+
+def get_annotation_sample(text, goldseps, syswrongs):
+    '''
+    アノテーションを返す
+    '''
+    point0 = goldseps.index(syswrongs[0])
+    if point0 % 2 == 0:
+        point1 = point0 + 1
+    else:
+        point1 = point0 - 1
+    annotation = decorate(text, set([goldseps[point0], goldseps[point1]]), "|")
+    return annotation
+
+
+def operation(inf, outf):
+    '''
+    Stub
+    '''
+    for line in inf:
+        data = json.loads(line)
+
+        text = data["plain"]
+        syswrongs = data["syswrongs"]
+        goldseps = data["goldseps"]
+        sysseps = data["sysseps"]
+        sysposs = data["sysposs"]
+        match_surfs, match_poss = get_matches(text, syswrongs, sysseps, sysposs)
+
+        annotation = get_annotation_sample(text, goldseps, syswrongs)
+        outs = [annotation, match_poss[0], match_surfs[0]]
+        outf.write("\t".join(outs))
+        outf.write("\n")
+
+
+def main():
+    '''
+    Parse arguments
+    '''
+    oparser = argparse.ArgumentParser()
+    oparser.add_argument("-i", "--input", dest="input", default="-")
+    oparser.add_argument("-o", "--output", dest="output", default="-")
+    oparser.add_argument(
+        "--verbose", dest="verbose", action="store_true", default=False)
+    opts = oparser.parse_args()
+
+    if opts.input == "-":
+        inf = sys.stdin
+    else:
+        inf = codecs.open(opts.input, "r", "utf8")
+
+    if opts.output == "-":
+        outf = sys.stdout
+    else:
+        outf = codecs.open(opts.output, "w", "utf8")
+    operation(inf, outf)
+
+
+if __name__ == '__main__':
+    main()

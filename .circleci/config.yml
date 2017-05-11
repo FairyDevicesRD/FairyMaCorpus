@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  build:
+    docker:
+        - image: python:3.6
+          environment:
+              PYCACHE_DIR: /pycache
+    working_directory: /app
+    steps:
+        - checkout
+
+        - restore_cache:
+            key: cache-{{ .Branch }}
+        - run:
+            name: python module install
+            command: |
+                mkdir -p ${PYCACHE_DIR}
+                XDG_CACHE_HOME=${PYCACHE_DIR} pip install pylint
+        - save_cache:
+            key: cache-{{ .Branch }}
+            paths:
+                - "${PYCACHE_DIR}"
+
+        - run:
+            name: Lint
+            command: |
+                find scripts | grep '\.py$' | xargs  pylint -E --py3k
+                pylint -E --py3k ./scripts/eval ./scripts/pp
+
+        - run:
+            name: Validate corpus
+            command: |
+                find corpus -type f | xargs cat | python3 ./scripts/validate.py -i -
+

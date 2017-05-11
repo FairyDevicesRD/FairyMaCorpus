@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+'''
+Stub
+'''
+
+import argparse
+import codecs
+import sys
+import json
+
+
+def get_sentence(inf):
+    '''
+    Get a sentence and token edges
+    '''
+    outsurf = ''
+    seps = []
+    poss = []
+    for line in inf:
+        if line == "EOS\n":
+            break
+        if line.startswith("@"):
+            continue
+        sep = line.find("\t")
+        if sep < 0:  # JUMAN style
+            sep = line.find(" ")
+            features = line[sep:].split()
+            pos = features[2] + "-" + features[4]
+        else:
+            pos = "-".join(line[sep + 1:].split(",")[0:2])
+        surf = line[:sep]
+        seps.append(len(outsurf))
+        outsurf += surf
+
+        poss.append(pos)
+    seps.append(len(outsurf))
+    return inf, outsurf, seps, poss
+
+
+def operation(goldf, inf, outf):
+    '''
+    Stub
+    '''
+    for lid, line in enumerate(goldf):
+        goldseps = []
+        idxit = iter(range(len(line)))
+        for idx in idxit:
+            if (line[idx] == '＜' == line[idx + 1]) or \
+                    (line[idx] == '＞' == line[idx + 1]):
+                goldseps.append(idx - 2 * len(goldseps))
+                next(idxit)
+        inf, text, sysseps, sysposs = get_sentence(inf)
+
+        syswrongs = set(goldseps) - set(sysseps)
+        if len(syswrongs) != 0:
+            outs = {}
+            outs["lid"] = lid
+            outs["plain"] = text
+            outs["syswrongs"] = list(syswrongs)
+            outs["goldseps"] = list(goldseps)
+            outs["sysseps"] = sysseps
+            outs["sysposs"] = sysposs
+            json.dump(outs, outf, ensure_ascii=False)
+            outf.write("\n")
+
+
+def main():
+    '''
+    Parse arguments
+    '''
+    oparser = argparse.ArgumentParser()
+    oparser.add_argument("-i", "--input", dest="input", default="-")
+    oparser.add_argument("-g", "--gold", dest="gold", default="-")
+    oparser.add_argument("-o", "--output", dest="output", default="-")
+    oparser.add_argument(
+        "--verbose", dest="verbose", action="store_true", default=False)
+    opts = oparser.parse_args()
+
+    if opts.input == "-":
+        inf = sys.stdin
+    else:
+        inf = codecs.open(opts.input, "r", "utf8")
+
+    if opts.gold == "-":
+        goldf = sys.stdin
+    else:
+        goldf = codecs.open(opts.gold, "r", "utf8")
+
+    if opts.output == "-":
+        outf = sys.stdout
+    else:
+        outf = codecs.open(opts.output, "w", "utf8")
+    operation(goldf, inf, outf)
+
+
+if __name__ == '__main__':
+    main()
