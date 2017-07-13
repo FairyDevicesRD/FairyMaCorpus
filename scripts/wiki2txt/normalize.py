@@ -60,7 +60,6 @@ def normalize(s):
     return s
 
 
-
 def test():
     assert "０１２３４５６７８９" == normalize("0123456789")
     assert "０１２３４５６７８９" == normalize("０１２３４５６７８９")
@@ -87,6 +86,7 @@ def test():
     assert "南アルプスの天然水Ｓｐａｒｋｉｎｇ　Ｌｅｍｏｎレモン一絞り" == \
         normalize("南アルプスの　天然水　Sparking Lemon　レモン一絞り")
     sys.stderr.write("Test passed.\n")
+
 
 if __name__ == "__main__":
     oparser = argparse.ArgumentParser()

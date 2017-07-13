@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-'''
-Stub
-'''
 
 import argparse
 import codecs
@@ -10,9 +7,6 @@ import sys
 
 
 def operation(inf, exf, outf):
-    '''
-    Stub
-    '''
     excludes = set([])
     for line in exf:
         key = line[:-1].replace("|", "").replace("?", "")

@@ -3,29 +3,28 @@ jobs:
   build:
     docker:
         - image: python:3.6
-          environment:
-              PYCACHE_DIR: /pycache
     working_directory: /app
     steps:
         - checkout
 
         - restore_cache:
-            key: cache-{{ .Branch }}
+            key: cache--{{ .Branch }}
         - run:
             name: python module install
             command: |
+                PYCACHE_DIR=pycache
                 mkdir -p ${PYCACHE_DIR}
-                XDG_CACHE_HOME=${PYCACHE_DIR} pip install pylint
+                XDG_CACHE_HOME=${PYCACHE_DIR} pip install flake8
         - save_cache:
-            key: cache-{{ .Branch }}
+            key: cache--{{ .Branch }}
             paths:
-                - "${PYCACHE_DIR}"
+                - pycache
 
         - run:
             name: Lint
             command: |
-                find scripts | grep '\.py$' | xargs  pylint -E --py3k
-                pylint -E --py3k ./scripts/eval ./scripts/pp
+                find scripts | grep '\.py$' | xargs flake8
+                flake8 ./scripts/eval ./scripts/pp
 
         - run:
             name: Validate corpus
