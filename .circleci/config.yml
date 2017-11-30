@@ -29,5 +29,5 @@ jobs:
         - run:
             name: Validate corpus
             command: |
-                find corpus -type f | xargs cat | python3 ./scripts/validate.py -i -
+                find corpus -type f | grep \.tsv | xargs cat | python3 ./scripts/validate.py -i -
 
