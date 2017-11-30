@@ -1,7 +1,7 @@
 
 # Wikipedia annotation
 
-All annotation is based on JUMAN part of speech system.
+All annotations are based on JUMAN part of speech system.
 
 - ``confusing-jumanpp``
     - Errors found by using Juman++
