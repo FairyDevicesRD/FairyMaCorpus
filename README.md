@@ -18,6 +18,7 @@ This is a sample data.
 ``?`` between first and last ``|`` indicate word boundary candidates.
 
 This corpus reveals some morphological analyzers wrongly parse it as ``あるい|て`` (あるい(walk) and て(and)).
+All annotation is based on JUMAN part of speech system which is extension of the Masuoka and Takubo grammar.
 
 
 ## Files
